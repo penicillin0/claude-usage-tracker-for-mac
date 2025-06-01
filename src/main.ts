@@ -6,8 +6,6 @@ import { promisify } from "node:util";
 const execAsync = promisify(exec);
 
 let tray: Tray | null = null;
-let refreshInterval: NodeJS.Timeout | null = null;
-let isMenuOpen = false;
 
 async function fetchUsageData() {
   try {
@@ -86,21 +84,13 @@ async function createTray() {
 
   tray.setToolTip("Claude Usage Tracker");
 
-  // Track menu visibility for Windows/Linux (left-click behavior)
+  // On Windows/Linux, clicking the icon shows the menu
   if (process.platform !== "darwin") {
     tray.on("click", () => {
-      isMenuOpen = !isMenuOpen;
-      if (isMenuOpen) {
-        startAutoRefresh();
-        tray?.popUpContextMenu();
-      } else {
-        stopAutoRefresh();
-      }
+      updateMenu();
+      tray?.popUpContextMenu();
     });
   }
-
-  // macOS uses native menu behavior
-  // Menu events will be set up after menu is created in updateMenu()
 
   await updateMenu();
 }
@@ -123,7 +113,7 @@ async function updateMenu() {
       enabled: false,
     });
 
-    if (usageData.daily) {
+    if ("daily" in usageData && usageData.daily) {
       menuItems.push({
         label: `  Cost: $${usageData.daily.cost.toFixed(2)}`,
         enabled: false,
@@ -147,7 +137,7 @@ async function updateMenu() {
       enabled: false,
     });
 
-    if (usageData.total) {
+    if ("total" in usageData && usageData.total) {
       menuItems.push({
         label: `  Cost: $${usageData.total.cost.toFixed(2)}`,
         enabled: false,
@@ -176,38 +166,11 @@ async function updateMenu() {
   const contextMenu = Menu.buildFromTemplate(menuItems);
   tray?.setContextMenu(contextMenu);
 
-  // Set up menu event listeners for macOS
+  // On macOS, rebuild menu when about to show
   if (process.platform === "darwin" && tray) {
     contextMenu.on("menu-will-show", () => {
-      isMenuOpen = true;
-      startAutoRefresh();
+      updateMenu();
     });
-    contextMenu.on("menu-will-close", () => {
-      isMenuOpen = false;
-      stopAutoRefresh();
-    });
-  }
-}
-
-function startAutoRefresh() {
-  // Stop any existing interval
-  stopAutoRefresh();
-
-  // Update immediately
-  updateMenu();
-
-  // Then update every 3 seconds
-  refreshInterval = setInterval(() => {
-    console.log("Refreshing usage data...");
-
-    updateMenu();
-  }, 3000);
-}
-
-function stopAutoRefresh() {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
   }
 }
 
@@ -219,8 +182,4 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
-});
-
-app.on("before-quit", () => {
-  stopAutoRefresh();
 });
