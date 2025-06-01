@@ -17,6 +17,7 @@ async function fetchUsageData() {
     const todayResult = await execAsync(
       `npx ccusage daily --since ${today} --json`,
     );
+
     const todayData = JSON.parse(todayResult.stdout);
 
     // Get all-time usage
@@ -28,13 +29,10 @@ async function fetchUsageData() {
     let totalOutputTokens = 0;
     let totalCost = 0;
 
-    if (allTimeData && Array.isArray(allTimeData)) {
-      // biome-ignore lint/complexity/noForEach:
-      allTimeData.forEach((day) => {
-        totalInputTokens += day.inputTokens || 0;
-        totalOutputTokens += day.outputTokens || 0;
-        totalCost += day.cost || 0;
-      });
+    if (allTimeData?.totals) {
+      totalInputTokens = allTimeData.totals.inputTokens || 0;
+      totalOutputTokens = allTimeData.totals.outputTokens || 0;
+      totalCost = allTimeData.totals.totalCost || 0;
     }
 
     // Get today's totals
@@ -42,10 +40,10 @@ async function fetchUsageData() {
     let todayOutputTokens = 0;
     let todayCost = 0;
 
-    if (todayData && Array.isArray(todayData) && todayData.length > 0) {
-      todayInputTokens = todayData[0].inputTokens || 0;
-      todayOutputTokens = todayData[0].outputTokens || 0;
-      todayCost = todayData[0].cost || 0;
+    if (todayData?.daily && Array.isArray(todayData.daily) && todayData.daily.length > 0) {
+      todayInputTokens = todayData.daily[0].inputTokens || 0;
+      todayOutputTokens = todayData.daily[0].outputTokens || 0;
+      todayCost = todayData.daily[0].totalCost || 0;
     }
 
     return {
