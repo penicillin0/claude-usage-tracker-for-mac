@@ -94,6 +94,24 @@ src/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Disclaimer
+
+⚠️ **Important Notice**
+
+This application is an **unofficial**, third-party tool and is **NOT affiliated with, endorsed by, or supported by Anthropic**.
+
+- **Accuracy**: While we strive for accuracy, the usage data displayed may not match your official Anthropic billing. Always refer to your official Anthropic account for authoritative usage and billing information.
+
+- **Data Source**: This app reads local Claude Code usage files via the `ccusage` library. The accuracy depends on the completeness and correctness of these local files.
+
+- **No Warranty**: This software is provided "as is" without any warranty. Use at your own risk.
+
+- **Privacy**: This app only reads local files and does not transmit any data to external servers. However, users should verify the source code if privacy is a concern.
+
+- **Billing Responsibility**: Users are solely responsible for monitoring their actual Anthropic usage and billing through official channels.
+
+For official usage tracking and billing information, please visit [Anthropic's official website](https://console.anthropic.com/).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
