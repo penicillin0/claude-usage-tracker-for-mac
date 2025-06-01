@@ -1,28 +1,26 @@
 {
-  "name": "claude-usage-tracker-for-mac",
-  "version": "1.0.0",
-  "description": "Claude Codeの使用料金を可視化する Mac用のメニューバーアプリケーション",
-  "main": "dist/main.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "electron .",
-    "dev": "tsc && electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "claude",
-    "menubar",
-    "electron",
-    "macos"
-  ],
-  "author": "penicillin0",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "22.15.29",
-    "electron": "36.3.2",
-    "typescript": "5.8.3"
-  },
-  "dependencies": {
-    "ccusage": "0.2.2"
-  }
+	"name": "claude-usage-tracker-for-mac",
+	"version": "1.0.0",
+	"description": "Claude Codeの使用料金を可視化する Mac用のメニューバーアプリケーション",
+	"main": "dist/main.js",
+	"scripts": {
+		"build": "tsc",
+		"start": "electron .",
+		"dev": "tsc && electron .",
+		"lint": "biome check .",
+		"format": "biome format --write .",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": ["claude", "menubar", "electron", "macos"],
+	"author": "penicillin0",
+	"license": "MIT",
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/node": "22.15.29",
+		"electron": "36.3.2",
+		"typescript": "5.8.3"
+	},
+	"dependencies": {
+		"ccusage": "0.2.2"
+	}
 }
