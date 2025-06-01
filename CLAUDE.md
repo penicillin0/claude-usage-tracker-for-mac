@@ -24,25 +24,24 @@ npm run check:fix    # Auto-fix all Biome issues
 
 ## Architecture
 
-The application follows Electron's multi-process architecture:
+The application follows Electron's single-process architecture with a tray-only design:
 
 **Main Process** (`src/main.ts`):
 - System tray lifecycle management
-- IPC communication setup (handles `get-usage-data`)
 - Executes ccusage via child_process
 - Data aggregation: fetches today's usage and calculates all-time totals
+- Menu construction and updates
 
-**Renderer Process** (`src/index.html`):
-- Single HTML file with embedded styles and scripts
-- Receives data via IPC (`usage-data` event)
-- Displays daily and total usage with currency formatting
-- No UI framework - vanilla JavaScript
+**Key Functions**:
+- `fetchUsageData()`: Executes ccusage commands and parses JSON responses
+- `createTray()`: Initializes tray icon (uses template icon on macOS)
+- `updateMenu()`: Builds context menu with formatted usage data
 
 **Data Flow**:
-1. Main process executes `npx ccusage daily --json` commands
-2. Aggregates data (today's usage + all-time totals)
-3. Sends processed data to renderer via IPC
-4. Renderer formats and displays in UI
+1. Execute `npx ccusage daily --since [today] --json` for today's usage
+2. Execute `npx ccusage daily --json` for all-time data
+3. Parse and aggregate token counts and costs
+4. Display formatted data in tray menu
 
 ## ccusage Integration Details
 
@@ -61,7 +60,6 @@ const allTimeResult = await execAsync("npx ccusage daily --json");
 ## Known Issues
 
 - **Icon Loading**: macOS requires Template images for menu bar. Uses `iconTemplate.png` on Darwin
-- **Security**: Using `nodeIntegration: true` and `contextIsolation: false` (temporary solution)
 - **Error Handling**: ccusage commands may fail if no usage data exists
 
 ## File Structure
