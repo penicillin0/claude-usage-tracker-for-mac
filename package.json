@@ -7,8 +7,11 @@
     "build": "tsc",
     "start": "electron .",
     "dev": "tsc && electron .",
-    "lint": "biome check .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["claude", "menubar", "electron", "macos"],
