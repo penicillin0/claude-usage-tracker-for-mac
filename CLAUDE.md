@@ -68,8 +68,7 @@ const allTimeResult = await execAsync("npx ccusage daily --json");
 
 ```
 src/
-├── main.ts        # Electron main process
-└── index.html     # Renderer with embedded CSS/JS
+└── main.ts        # Electron main process
 assets/
 ├── icon.png       # Standard tray icon
 └── iconTemplate.png # macOS menu bar icon
