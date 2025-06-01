@@ -46,8 +46,6 @@ TypeScript を使用して開発されており、Electronを使用してデス�
 - Electron
 - ccusage ( https://www.npmjs.com/package/ccusage )
 - Biome ( linting, formatting )
-- React ( 必要に応じて )
-- Tailwind CSS ( 必要に応じて )
 
 ## 実装方針
 

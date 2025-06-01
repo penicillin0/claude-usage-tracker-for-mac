@@ -32,7 +32,7 @@ npx @biomejs/biome init
 
 This will be an Electron-based menu bar application with the following structure:
 - **Main Process**: Handles menu bar integration, system tray, and file system access
-- **Renderer Process**: Displays usage statistics and UI (React + Tailwind CSS if needed)
+- **Renderer Process**: Displays usage statistics with vanilla HTML/CSS/JavaScript
 - **ccusage Integration**: Use the `ccusage` library to fetch and parse Claude Code usage data
 
 ## Key Implementation Notes
