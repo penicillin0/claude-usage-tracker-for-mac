@@ -1,4 +1,4 @@
-🎉 **Special Thanks** to [ccusage](https://www.npmjs.com/package/ccusage) for providing the core usage analysis functionality!
+🎉 **Special Thanks** to [ccusage](https://github.com/ryoppippi/ccusage) for providing the core usage analysis functionality!
 
 # Claude Usage Tracker for Mac
 
