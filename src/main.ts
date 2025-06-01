@@ -1,8 +1,81 @@
-import { BrowserWindow, Menu, Tray, app } from "electron";
+import { BrowserWindow, Menu, Tray, app, ipcMain } from "electron";
+import { exec } from "node:child_process";
 import * as path from "node:path";
+import { promisify } from "node:util";
+
+const execAsync = promisify(exec);
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
+
+async function fetchUsageData() {
+  try {
+    // Get today's date in YYYYMMDD format
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+
+    // Get today's usage
+    const todayResult = await execAsync(
+      `npx ccusage daily --since ${today} --json`,
+    );
+    const todayData = JSON.parse(todayResult.stdout);
+
+    // Get all-time usage
+    const allTimeResult = await execAsync("npx ccusage daily --json");
+    const allTimeData = JSON.parse(allTimeResult.stdout);
+
+    // Calculate totals from all-time data
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalCost = 0;
+
+    if (allTimeData && Array.isArray(allTimeData)) {
+      // biome-ignore lint/complexity/noForEach:
+      allTimeData.forEach((day) => {
+        totalInputTokens += day.inputTokens || 0;
+        totalOutputTokens += day.outputTokens || 0;
+        totalCost += day.cost || 0;
+      });
+    }
+
+    // Get today's totals
+    let todayInputTokens = 0;
+    let todayOutputTokens = 0;
+    let todayCost = 0;
+
+    if (todayData && Array.isArray(todayData) && todayData.length > 0) {
+      todayInputTokens = todayData[0].inputTokens || 0;
+      todayOutputTokens = todayData[0].outputTokens || 0;
+      todayCost = todayData[0].cost || 0;
+    }
+
+    return {
+      daily: {
+        inputTokens: todayInputTokens,
+        outputTokens: todayOutputTokens,
+        cost: todayCost,
+      },
+      total: {
+        inputTokens: totalInputTokens,
+        outputTokens: totalOutputTokens,
+        cost: totalCost,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching usage data:", error);
+    return {
+      daily: null,
+      total: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+async function updateUsageData() {
+  const usageData = await fetchUsageData();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("usage-data", usageData);
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -20,10 +93,28 @@ function createWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  mainWindow.webContents.on("did-finish-load", () => {
+    updateUsageData();
+  });
 }
 
 function createTray() {
-  tray = new Tray(path.join(__dirname, "../assets/icon.png"));
+  // Use Template icon for macOS menu bar
+  const iconName =
+    process.platform === "darwin" ? "iconTemplate.png" : "icon.png";
+  const iconPath = path.join(__dirname, "..", "assets", iconName);
+
+  try {
+    tray = new Tray(iconPath);
+    // On macOS, make the icon properly sized for menu bar
+    if (process.platform === "darwin") {
+      tray.setTitle(""); // Clear any title
+    }
+  } catch (error) {
+    console.error("Failed to create tray:", error);
+    return;
+  }
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -32,6 +123,12 @@ function createTray() {
         if (mainWindow) {
           mainWindow.show();
         }
+      },
+    },
+    {
+      label: "Refresh",
+      click: () => {
+        updateUsageData();
       },
     },
     {
@@ -48,6 +145,10 @@ function createTray() {
   tray.setToolTip("Claude Usage Tracker");
   tray.setContextMenu(contextMenu);
 }
+
+ipcMain.handle("get-usage-data", async () => {
+  return await fetchUsageData();
+});
 
 app.whenReady().then(() => {
   createWindow();
