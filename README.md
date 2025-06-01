@@ -1,3 +1,6 @@
+🎉 Special Thanks To [ccusage](https://www.npmjs.com/package/ccusage) 🎉
+
+
 # claude-usage-tracker-for-mac
 
 Claude Codeの使用料金を可視化する Mac用のメニューバーアプリケーション
