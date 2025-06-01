@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, Tray, app, ipcMain } from "electron";
+import { Menu, type MenuItemConstructorOptions, Tray, app } from "electron";
 import { exec } from "node:child_process";
 import * as path from "node:path";
 import { promisify } from "node:util";
@@ -6,7 +6,6 @@ import { promisify } from "node:util";
 const execAsync = promisify(exec);
 
 let tray: Tray | null = null;
-let mainWindow: BrowserWindow | null = null;
 
 async function fetchUsageData() {
   try {
@@ -40,7 +39,11 @@ async function fetchUsageData() {
     let todayOutputTokens = 0;
     let todayCost = 0;
 
-    if (todayData?.daily && Array.isArray(todayData.daily) && todayData.daily.length > 0) {
+    if (
+      todayData?.daily &&
+      Array.isArray(todayData.daily) &&
+      todayData.daily.length > 0
+    ) {
       todayInputTokens = todayData.daily[0].inputTokens || 0;
       todayOutputTokens = todayData.daily[0].outputTokens || 0;
       todayCost = todayData.daily[0].totalCost || 0;
@@ -68,36 +71,7 @@ async function fetchUsageData() {
   }
 }
 
-async function updateUsageData() {
-  const usageData = await fetchUsageData();
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send("usage-data", usageData);
-  }
-}
-
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 400,
-    height: 300,
-    show: false,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
-
-  mainWindow.on("closed", () => {
-    mainWindow = null;
-  });
-
-  mainWindow.webContents.on("did-finish-load", () => {
-    updateUsageData();
-  });
-}
-
-function createTray() {
+async function createTray() {
   // Use Template icon for macOS menu bar
   const iconName =
     process.platform === "darwin" ? "iconTemplate.png" : "icon.png";
@@ -114,53 +88,97 @@ function createTray() {
     return;
   }
 
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: "Show Usage",
-      click: () => {
-        if (mainWindow) {
-          mainWindow.show();
-        }
-      },
-    },
-    {
-      label: "Refresh",
-      click: () => {
-        updateUsageData();
-      },
-    },
-    {
-      type: "separator",
-    },
-    {
-      label: "Quit",
-      click: () => {
-        app.quit();
-      },
-    },
-  ]);
-
   tray.setToolTip("Claude Usage Tracker");
-  tray.setContextMenu(contextMenu);
+  await updateMenu();
 }
 
-ipcMain.handle("get-usage-data", async () => {
-  return await fetchUsageData();
-});
+async function updateMenu() {
+  const usageData = await fetchUsageData();
 
-app.whenReady().then(() => {
-  createWindow();
-  createTray();
+  const menuItems: MenuItemConstructorOptions[] = [];
+
+  // Add usage information to menu
+  if (usageData.error) {
+    menuItems.push({
+      label: "Error loading usage data",
+      enabled: false,
+    });
+  } else {
+    // Today's usage
+    menuItems.push({
+      label: "Today's Usage",
+      enabled: false,
+    });
+
+    if (usageData.daily) {
+      menuItems.push({
+        label: `  Cost: $${usageData.daily.cost.toFixed(2)}`,
+        enabled: false,
+      });
+      menuItems.push({
+        label: `  Tokens: ${(usageData.daily.inputTokens + usageData.daily.outputTokens).toLocaleString()}`,
+        enabled: false,
+      });
+    } else {
+      menuItems.push({
+        label: "  No usage today",
+        enabled: false,
+      });
+    }
+
+    menuItems.push({ type: "separator" });
+
+    // All-time usage
+    menuItems.push({
+      label: "All-Time Usage",
+      enabled: false,
+    });
+
+    if (usageData.total) {
+      menuItems.push({
+        label: `  Cost: $${usageData.total.cost.toFixed(2)}`,
+        enabled: false,
+      });
+      menuItems.push({
+        label: `  Tokens: ${(usageData.total.inputTokens + usageData.total.outputTokens).toLocaleString()}`,
+        enabled: false,
+      });
+    } else {
+      menuItems.push({
+        label: "  No usage data",
+        enabled: false,
+      });
+    }
+  }
+
+  menuItems.push({ type: "separator" });
+
+  menuItems.push({
+    label: "Refresh",
+    click: async () => {
+      await updateMenu();
+    },
+  });
+
+  menuItems.push({ type: "separator" });
+
+  menuItems.push({
+    label: "Quit",
+    click: () => {
+      app.quit();
+    },
+  });
+
+  const contextMenu = Menu.buildFromTemplate(menuItems);
+  tray?.setContextMenu(contextMenu);
+}
+
+app.whenReady().then(async () => {
+  await createTray();
 });
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
-  }
-});
-
-app.on("activate", () => {
-  if (mainWindow === null) {
-    createWindow();
   }
 });
