@@ -6,70 +6,75 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a macOS menu bar application that visualizes Claude Code usage costs. It's built with TypeScript and Electron, utilizing the `ccusage` npm library to read local Claude Code usage history files and calculate costs.
 
-## Development Setup
-
-Since this project is in its initial stage, you'll need to initialize the Node.js/Electron project:
+## Commands
 
 ```bash
-# Initialize npm project
-npm init -y
+# Development
+npm run dev          # Compile TypeScript and start Electron
+npm run build        # Compile TypeScript only
+npm start            # Run Electron (requires prior build)
 
-# Install dependencies
-npm install --save-dev electron typescript @types/node
-npm install ccusage
-
-# Install Biome for linting/formatting
-npm install --save-dev @biomejs/biome
-
-# Initialize TypeScript
-npx tsc --init
-
-# Initialize Biome
-npx @biomejs/biome init
+# Code Quality
+npm run lint         # Run Biome linter
+npm run lint:fix     # Auto-fix linting issues
+npm run format       # Format code with Biome
+npm run check        # Run all Biome checks
+npm run check:fix    # Auto-fix all Biome issues
 ```
 
 ## Architecture
 
-This will be an Electron-based menu bar application with the following structure:
-- **Main Process**: Handles menu bar integration, system tray, and file system access
-- **Renderer Process**: Displays usage statistics with vanilla HTML/CSS/JavaScript
-- **ccusage Integration**: Use the `ccusage` library to fetch and parse Claude Code usage data
+The application follows Electron's multi-process architecture:
 
-## Key Implementation Notes
+- **Main Process** (`src/main.ts`): 
+  - Creates system tray icon and context menu
+  - Manages BrowserWindow lifecycle
+  - Handles IPC communication with renderer
+  - Executes ccusage commands via child_process
 
-1. **Menu Bar App**: Use Electron's `Tray` API for menu bar functionality
-2. **Data Source**: Read local Claude Code usage history files via `ccusage`
-3. **Privacy**: Only access local files, no external API calls
-4. **UI Design**: Follow macOS design guidelines for native feel
-5. **Minimal Approach**: Start with basic functionality, extend as needed
+- **Renderer Process** (`src/index.html`):
+  - Displays usage statistics in a minimal UI
+  - Receives data from main process via IPC
+  - Uses vanilla HTML/CSS/JavaScript (no framework)
 
-## Common Commands
+- **Build Output**: TypeScript compiles to `dist/` directory
 
-Once the project is set up, typical commands will be:
-```bash
-# Run in development
-npm run dev
+## ccusage Integration
 
-# Build for production
-npm run build
+The app needs to integrate with the `ccusage` CLI tool to fetch usage data. Implementation approach:
 
-# Lint and format code
-npm run lint
-npm run format
-
-# Run TypeScript type checking
-npm run typecheck
-```
-
-## ccusage Library Usage
-
-The core functionality relies on the `ccusage` npm package:
 ```typescript
-// Example usage
+// In main process, use child_process to execute ccusage
 import { exec } from 'child_process';
 
-exec('npx ccusage@latest daily --json', (error, stdout) => {
-  const data = JSON.parse(stdout);
-  // Process daily usage data
+// Fetch daily usage
+exec('npx ccusage daily --json', (error, stdout) => {
+  if (!error) {
+    const data = JSON.parse(stdout);
+    // Send to renderer via IPC
+    mainWindow?.webContents.send('usage-data', data);
+  }
+});
+
+// Fetch total usage
+exec('npx ccusage total --json', (error, stdout) => {
+  // Process total usage data
 });
 ```
+
+## Current Implementation Status
+
+- ✅ Basic Electron setup with TypeScript
+- ✅ System tray integration with context menu
+- ✅ Window creation and management
+- ❌ ccusage data fetching not implemented
+- ❌ IPC communication between processes not set up
+- ❌ UI only shows placeholder text
+- ❌ Missing tray icon asset (`assets/icon.png`)
+
+## Important Notes
+
+- **Electron Security**: Currently using `nodeIntegration: true` and `contextIsolation: false` for simplicity. Consider enabling context isolation and using preload scripts for production.
+- **Icon Path**: References `../assets/icon.png` which doesn't exist yet
+- **Window Management**: Window is created hidden and only shown via tray menu
+- **TypeScript Config**: Targets CommonJS modules and ES2016
