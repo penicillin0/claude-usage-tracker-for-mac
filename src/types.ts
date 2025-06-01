@@ -1,15 +1,15 @@
-export interface UsageStats {
+export type UsageStats = {
   totalTokens: number;
   cost: number;
-}
+};
 
-export interface UsageData {
+export type UsageData = {
   daily: UsageStats | null;
   total: UsageStats | null;
   error?: string;
-}
+};
 
-export interface CcusageResponse {
+export type CcusageResponse = {
   totals?: {
     totalTokens: number;
     totalCost: number;
@@ -18,4 +18,4 @@ export interface CcusageResponse {
     totalTokens: number;
     totalCost: number;
   }>;
-}
+};
