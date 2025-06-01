@@ -7,9 +7,7 @@ export class TrayManager {
   private tray: Tray | null = null;
 
   async initializeTray(): Promise<void> {
-    const iconName =
-      process.platform === "darwin" ? "iconTemplate.png" : "icon.png";
-    const iconPath = path.join(__dirname, "..", "assets", iconName);
+    const iconPath = path.join(__dirname, "..", "assets", "icon.png");
 
     try {
       this.tray = new Tray(iconPath);
