@@ -6,6 +6,8 @@ import { promisify } from "node:util";
 const execAsync = promisify(exec);
 
 let tray: Tray | null = null;
+let refreshInterval: NodeJS.Timeout | null = null;
+let isMenuOpen = false;
 
 async function fetchUsageData() {
   try {
@@ -83,6 +85,23 @@ async function createTray() {
   }
 
   tray.setToolTip("Claude Usage Tracker");
+
+  // Track menu visibility for Windows/Linux (left-click behavior)
+  if (process.platform !== "darwin") {
+    tray.on("click", () => {
+      isMenuOpen = !isMenuOpen;
+      if (isMenuOpen) {
+        startAutoRefresh();
+        tray?.popUpContextMenu();
+      } else {
+        stopAutoRefresh();
+      }
+    });
+  }
+
+  // macOS uses native menu behavior
+  // Menu events will be set up after menu is created in updateMenu()
+
   await updateMenu();
 }
 
@@ -148,15 +167,6 @@ async function updateMenu() {
   menuItems.push({ type: "separator" });
 
   menuItems.push({
-    label: "Refresh",
-    click: async () => {
-      await updateMenu();
-    },
-  });
-
-  menuItems.push({ type: "separator" });
-
-  menuItems.push({
     label: "Quit",
     click: () => {
       app.quit();
@@ -165,6 +175,40 @@ async function updateMenu() {
 
   const contextMenu = Menu.buildFromTemplate(menuItems);
   tray?.setContextMenu(contextMenu);
+
+  // Set up menu event listeners for macOS
+  if (process.platform === "darwin" && tray) {
+    contextMenu.on("menu-will-show", () => {
+      isMenuOpen = true;
+      startAutoRefresh();
+    });
+    contextMenu.on("menu-will-close", () => {
+      isMenuOpen = false;
+      stopAutoRefresh();
+    });
+  }
+}
+
+function startAutoRefresh() {
+  // Stop any existing interval
+  stopAutoRefresh();
+
+  // Update immediately
+  updateMenu();
+
+  // Then update every 3 seconds
+  refreshInterval = setInterval(() => {
+    console.log("Refreshing usage data...");
+
+    updateMenu();
+  }, 3000);
+}
+
+function stopAutoRefresh() {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
 }
 
 app.whenReady().then(async () => {
@@ -175,4 +219,8 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on("before-quit", () => {
+  stopAutoRefresh();
 });
