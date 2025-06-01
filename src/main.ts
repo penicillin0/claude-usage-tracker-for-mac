@@ -24,19 +24,16 @@ async function fetchUsageData() {
     const allTimeData = JSON.parse(allTimeResult.stdout);
 
     // Calculate totals from all-time data
-    let totalInputTokens = 0;
-    let totalOutputTokens = 0;
+    let totalTotalTokens = 0;
     let totalCost = 0;
 
     if (allTimeData?.totals) {
-      totalInputTokens = allTimeData.totals.inputTokens || 0;
-      totalOutputTokens = allTimeData.totals.outputTokens || 0;
+      totalTotalTokens = allTimeData.totals.totalTokens || 0;
       totalCost = allTimeData.totals.totalCost || 0;
     }
 
     // Get today's totals
-    let todayInputTokens = 0;
-    let todayOutputTokens = 0;
+    let todayTotalTokens = 0;
     let todayCost = 0;
 
     if (
@@ -44,20 +41,17 @@ async function fetchUsageData() {
       Array.isArray(todayData.daily) &&
       todayData.daily.length > 0
     ) {
-      todayInputTokens = todayData.daily[0].inputTokens || 0;
-      todayOutputTokens = todayData.daily[0].outputTokens || 0;
+      todayTotalTokens = todayData.daily[0].totalTokens || 0;
       todayCost = todayData.daily[0].totalCost || 0;
     }
 
     return {
       daily: {
-        inputTokens: todayInputTokens,
-        outputTokens: todayOutputTokens,
+        totalTokens: todayTotalTokens,
         cost: todayCost,
       },
       total: {
-        inputTokens: totalInputTokens,
-        outputTokens: totalOutputTokens,
+        totalTokens: totalTotalTokens,
         cost: totalCost,
       },
     };
@@ -116,7 +110,7 @@ async function updateMenu() {
         enabled: false,
       });
       menuItems.push({
-        label: `  Tokens: ${(usageData.daily.inputTokens + usageData.daily.outputTokens).toLocaleString()}`,
+        label: `  Tokens: ${usageData.daily.totalTokens.toLocaleString()}`,
         enabled: false,
       });
     } else {
@@ -140,7 +134,7 @@ async function updateMenu() {
         enabled: false,
       });
       menuItems.push({
-        label: `  Tokens: ${(usageData.total.inputTokens + usageData.total.outputTokens).toLocaleString()}`,
+        label: `  Tokens: ${usageData.total.totalTokens.toLocaleString()}`,
         enabled: false,
       });
     } else {
