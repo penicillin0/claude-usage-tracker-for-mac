@@ -59,7 +59,6 @@ const allTimeResult = await execAsync("npx ccusage daily --json");
 
 ## Known Issues
 
-- **Icon Loading**: macOS requires Template images for menu bar. Uses `iconTemplate.png` on Darwin
 - **Error Handling**: ccusage commands may fail if no usage data exists
 
 ## File Structure
@@ -68,7 +67,6 @@ const allTimeResult = await execAsync("npx ccusage daily --json");
 src/
 └── main.ts        # Electron main process
 assets/
-├── icon.png       # Standard tray icon
-└── iconTemplate.png # macOS menu bar icon
+└── icon.png       # Standard tray icon
 dist/              # TypeScript output (git-ignored)
 ```
