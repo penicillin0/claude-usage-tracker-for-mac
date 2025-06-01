@@ -4,7 +4,7 @@
 
 🍊 macOS menu bar app to visualize Claude Code usage costs
 
-![screenshot](assets/screenshot.png)
+![screenshot](assets/menu-screenshot.png)
 
 ## Overview
 
