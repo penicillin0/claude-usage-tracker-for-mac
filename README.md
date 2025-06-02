@@ -21,11 +21,25 @@ A clean, lightweight menu bar application that displays your Claude Code usage s
 
 ## Installation
 
-### via manually
+### Via Homebrew (Recommended)
+
+```bash
+# Add the tap
+brew tap penicillin0/claude-usage-tracker
+
+# Install the app
+brew install claude-usage-tracker
+```
+
+### Direct Download
+
+Download the latest release from the [GitHub Releases](https://github.com/penicillin0/claude-usage-tracker-for-mac/releases) page.
+
+### Build from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/claude-usage-tracker-for-mac.git
+git clone https://github.com/penicillin0/claude-usage-tracker-for-mac.git
 cd claude-usage-tracker-for-mac
 
 # Install dependencies
@@ -36,9 +50,6 @@ npm run build
 npm start
 ```
 
-### via Homebrew
-
-coming soon...
 
 ### via Apple Store
 
