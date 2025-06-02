@@ -31,6 +31,12 @@ brew tap penicillin0/claude-usage-tracker
 brew install claude-usage-tracker
 ```
 
+To update to the latest version:
+
+```bash
+brew upgrade claude-usage-tracker
+```
+
 ### Direct Download
 
 Download the latest release from the [GitHub Releases](https://github.com/penicillin0/claude-usage-tracker-for-mac/releases) page.
