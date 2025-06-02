@@ -34,6 +34,10 @@ brew install claude-usage-tracker
 To update to the latest version:
 
 ```bash
+# Update the tap
+brew update
+
+# Upgrade the app
 brew upgrade claude-usage-tracker
 ```
 
