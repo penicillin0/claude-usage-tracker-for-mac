@@ -21,7 +21,7 @@ A clean, lightweight menu bar application that displays your Claude Code usage s
 
 ## Installation
 
-### Via Homebrew (Recommended)
+### Via 🍺 Homebrew (Recommended)
 
 ```bash
 # Add the tap
@@ -51,7 +51,7 @@ npm start
 ```
 
 
-### via Apple Store
+### via 🍎 Apple Store 🍎
 
 coming soon...
 
