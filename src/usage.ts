@@ -1,40 +1,38 @@
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
-import type { CcusageResponse, UsageData } from "./types";
-
-const execAsync = promisify(exec);
+import type { UsageData } from "./types";
 
 export async function getUserUsage(): Promise<UsageData> {
   try {
-    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-
-    const todayResult = await execAsync(
-      `npx ccusage daily --since ${today} --json`,
+    // Dynamic import for ESM module
+    // @ts-ignore - dynamic import of ESM module
+    const { loadUsageData } = await import("ccusage/data-loader");
+    const { calculateTotals, createTotalsObject } = await import(
+      // @ts-ignore - dynamic import of ESM module
+      "ccusage/calculate-cost"
     );
 
-    const todayData: CcusageResponse = JSON.parse(todayResult.stdout);
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
-    const allTimeResult = await execAsync("npx ccusage daily --json");
-    const allTimeData: CcusageResponse = JSON.parse(allTimeResult.stdout);
+    // Get today's usage data
+    const todayData = await loadUsageData({
+      since: today,
+    });
 
-    let totalTotalTokens = 0;
-    let totalCost = 0;
+    // Get all-time usage data
+    const allTimeData = await loadUsageData();
 
-    if (allTimeData?.totals) {
-      totalTotalTokens = allTimeData.totals.totalTokens || 0;
-      totalCost = allTimeData.totals.totalCost || 0;
-    }
+    // Calculate totals for all-time data
+    const allTimeTotals = calculateTotals(allTimeData);
+    const allTimeTotalsObject = createTotalsObject(allTimeTotals);
 
+    // Calculate today's totals
     let todayTotalTokens = 0;
     let todayCost = 0;
 
-    if (
-      todayData?.daily &&
-      Array.isArray(todayData.daily) &&
-      todayData.daily.length > 0
-    ) {
-      todayTotalTokens = todayData.daily[0].totalTokens || 0;
-      todayCost = todayData.daily[0].totalCost || 0;
+    if (todayData.length > 0) {
+      const todayTotals = calculateTotals(todayData);
+      const todayTotalsObject = createTotalsObject(todayTotals);
+      todayTotalTokens = todayTotalsObject.totalTokens;
+      todayCost = todayTotalsObject.totalCost;
     }
 
     return {
@@ -43,8 +41,8 @@ export async function getUserUsage(): Promise<UsageData> {
         cost: todayCost,
       },
       total: {
-        totalTokens: totalTotalTokens,
-        cost: totalCost,
+        totalTokens: allTimeTotalsObject.totalTokens,
+        cost: allTimeTotalsObject.totalCost,
       },
     };
   } catch (error) {
