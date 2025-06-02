@@ -1,6 +1,6 @@
 🎉 **Special Thanks** to [ccusage](https://github.com/ryoppippi/ccusage) for providing the core usage analysis functionality!
 
-# Claude Usage Tracker for Mac
+# ![screenshot](assets/icon.png) Claude Usage Tracker for Mac ![screenshot](assets/icon.png)
 
 🍊 macOS menu bar app to visualize Claude Code usage costs
 
