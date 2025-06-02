@@ -45,6 +45,9 @@
       "gatekeeperAssess": false,
       "identity": "Ayahito Nakamura (52BYYDA79X)",
       "notarize": true,
+      "extendInfo": {
+        "LSUIElement": true
+      },
       "target": [
         {
           "target": "dmg",

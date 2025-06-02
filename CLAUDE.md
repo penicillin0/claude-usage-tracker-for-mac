@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 macOS menu bar application that visualizes Claude Code usage costs using the `ccusage` npm library to read local usage history files.
 
+## Limitations
+
+- Do Linting and formatting with Biome every time you change the code.
+
 ## Commands
 
 ```bash

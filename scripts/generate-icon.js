@@ -16,7 +16,14 @@ function createOrangeIcon(size = 20, filename = "icon.png") {
   const fontSize = size * 0.55;
 
   // Create gradient from light orange to dark orange
-  const gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
+  const gradient = ctx.createRadialGradient(
+    center,
+    center,
+    0,
+    center,
+    center,
+    radius,
+  );
   gradient.addColorStop(0, "#FF8C42"); // Light orange
   gradient.addColorStop(1, "#FF6B1A"); // Dark orange
 
@@ -84,7 +91,7 @@ if (!fs.existsSync(iconsDir)) {
 }
 
 // Generate icons
-createOrangeIcon(20, "assets/icon.png");  // Menu bar icon
-createOrangeIcon(512, "build/icons/icon.png");  // App icon
-createOrangeIcon(1024, "build/icons/icon@2x.png");  // Retina app icon
+createOrangeIcon(20, "assets/icon.png"); // Menu bar icon
+createOrangeIcon(512, "build/icons/icon.png"); // App icon
+createOrangeIcon(1024, "build/icons/icon@2x.png"); // Retina app icon
 createTemplateIcon();
