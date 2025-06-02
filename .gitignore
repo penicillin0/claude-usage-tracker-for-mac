@@ -137,3 +137,5 @@ dist
 
 release/
 build/icons/
+
+.DS_Store
