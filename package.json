@@ -1,6 +1,6 @@
 {
   "name": "claude-usage-tracker-for-mac",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Claude Codeの使用料金を可視化する Mac用のメニューバーアプリケーション",
   "main": "dist/main.js",
   "scripts": {
