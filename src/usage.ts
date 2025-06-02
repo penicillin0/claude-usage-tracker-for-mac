@@ -8,13 +8,26 @@ export async function getUserUsage(): Promise<UsageData> {
   try {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
+    // Set PATH to include common Node.js installation paths
+    const env = {
+      ...process.env,
+      PATH: [
+        "/opt/homebrew/bin", // Homebrew on Apple Silicon
+        "/usr/local/bin", // Homebrew on Intel Mac / common installs
+        "/usr/bin",
+        "/bin",
+        process.env.PATH || "",
+      ].join(":"),
+    };
+
     const todayResult = await execAsync(
       `npx ccusage daily --since ${today} --json`,
+      { env },
     );
 
     const todayData: CcusageResponse = JSON.parse(todayResult.stdout);
 
-    const allTimeResult = await execAsync("npx ccusage daily --json");
+    const allTimeResult = await execAsync("npx ccusage daily --json", { env });
     const allTimeData: CcusageResponse = JSON.parse(allTimeResult.stdout);
 
     let totalTotalTokens = 0;

@@ -1,11 +1,11 @@
 cask "claude-usage-tracker" do
-  version "0.0.2"
+  version "0.0.3"
   
   if Hardware::CPU.intel?
-    sha256 "29bf18d60f587e562cc96f7dd5ca7ec6f56da092743fda7ec826e1ed47ce14f8"
+    sha256 "a1277932e2404cfda09ebabb8ae9079671c3b938de8ac2c404dceb7cbc7c4b39"
     url "https://github.com/penicillin0/claude-usage-tracker-for-mac/releases/download/v#{version}/Claude.Usage.Tracker-#{version}.dmg"
   else
-    sha256 "34edf9f82d0e1ca9617e7e8f72a9142db0c77602a3d1b63a5bbe46ec808d5659"
+    sha256 "87be8954e7b75504a23e9ac5238f6eed45cbe8927fcd95272562de5690b90188"
     url "https://github.com/penicillin0/claude-usage-tracker-for-mac/releases/download/v#{version}/Claude.Usage.Tracker-#{version}-arm64.dmg"
   end
 

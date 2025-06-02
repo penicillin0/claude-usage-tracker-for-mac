@@ -19,6 +19,15 @@ A clean, lightweight menu bar application that displays your Claude Code usage s
 - ⚡ **Lightweight**: Minimal resource usage with efficient architecture
 
 
+## Prerequisites
+
+- macOS 10.13 or later
+- Node.js and npm installed
+- ccusage installed globally:
+  ```bash
+  npm install -g ccusage
+  ```
+
 ## Installation
 
 ### via manually
