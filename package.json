@@ -1,6 +1,6 @@
 {
   "name": "claude-usage-tracker-for-mac",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Claude Codeの使用料金を可視化する Mac用のメニューバーアプリケーション",
   "main": "dist/main.js",
   "scripts": {
@@ -12,7 +12,10 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "check:fix": "biome check --write .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:mac:universal": "npm run build && electron-builder --mac --universal"
   },
   "keywords": ["claude", "menubar", "electron", "macos"],
   "author": "penicillin0",
@@ -21,10 +24,51 @@
     "@biomejs/biome": "1.9.4",
     "@types/node": "22.15.29",
     "electron": "36.3.2",
+    "electron-builder": "26.0.12",
     "typescript": "5.8.3"
   },
   "dependencies": {
     "canvas": "3.1.0",
     "ccusage": "0.2.2"
+  },
+  "build": {
+    "appId": "com.penicillin0.claude-usage-tracker",
+    "productName": "Claude Usage Tracker",
+    "directories": {
+      "output": "release"
+    },
+    "files": ["dist/**/*", "assets/**/*", "node_modules/**/*", "package.json"],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icons/icon.png",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "identity": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    }
   }
 }
