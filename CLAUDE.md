@@ -96,3 +96,55 @@ assets/
 dist/              # TypeScript output (git-ignored)
 release/           # electron-builder output (git-ignored)
 ```
+
+## Release Process
+
+When creating a new release:
+
+1. **Update version in package.json**:
+   ```bash
+   # Edit package.json to update version number
+   ```
+
+2. **Run linting and formatting**:
+   ```bash
+   npm run lint
+   npm run format
+   npm run check
+   ```
+
+3. **Commit and tag the release**:
+   ```bash
+   git add package.json
+   git commit -m "chore: bump version to X.X.X"
+   git tag vX.X.X
+   ```
+
+4. **Build the macOS releases** (requires Apple notarization credentials):
+   ```bash
+   APPLE_ID="your-apple-id@email.com" \
+   APPLE_APP_SPECIFIC_PASSWORD="xxxx-xxxx-xxxx-xxxx" \
+   APPLE_TEAM_ID="YOUR_TEAM_ID" \
+   npm run dist:mac
+   ```
+
+5. **Get SHA256 hashes for Homebrew**:
+   ```bash
+   shasum -a 256 "release/Claude Usage Tracker-X.X.X.dmg"
+   shasum -a 256 "release/Claude Usage Tracker-X.X.X-arm64.dmg"
+   ```
+
+6. **Push to GitHub**:
+   ```bash
+   git push origin main
+   git push origin vX.X.X
+   ```
+
+7. **Create GitHub Release**:
+   - Go to GitHub releases page
+   - Create release from the vX.X.X tag
+   - Upload the DMG files from the release/ directory
+
+8. **Update Homebrew Cask**:
+   - Update version and SHA256 hashes in homebrew-claude-usage-tracker repository
+   - Create and merge PR for the Homebrew formula update
