@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "canvas": "3.1.0",
-    "ccusage": "0.3.0"
+    "ccusage": "0.5.0"
   },
   "build": {
     "appId": "com.penicillin0.claude-usage-tracker",
