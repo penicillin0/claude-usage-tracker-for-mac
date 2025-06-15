@@ -1,5 +1,5 @@
 import { app } from "electron";
-import { TrayManager } from "./tray";
+import { TrayManager } from "./tray.js";
 
 const trayManager = new TrayManager();
 
