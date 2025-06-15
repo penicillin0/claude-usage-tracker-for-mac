@@ -1,12 +1,15 @@
 import { Menu, type MenuItemConstructorOptions, Tray, app } from "electron";
 import * as path from "node:path";
-import type { UsageData } from "./types";
-import { getUserUsage } from "./usage";
+import { fileURLToPath } from "node:url";
+import type { UsageData } from "./types.js";
+import { getUserUsage } from "./usage.js";
 
 export class TrayManager {
   private tray: Tray | null = null;
 
   async initializeTray(): Promise<void> {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
     const iconPath = path.join(__dirname, "..", "assets", "icon.png");
 
     try {

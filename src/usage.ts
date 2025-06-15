@@ -1,15 +1,9 @@
-import type { UsageData } from "./types";
+import { calculateTotals, createTotalsObject } from "ccusage/calculate-cost";
+import { loadUsageData } from "ccusage/data-loader";
+import type { UsageData } from "./types.js";
 
 export async function getUserUsage(): Promise<UsageData> {
   try {
-    // Dynamic import for ESM module
-    // @ts-ignore - dynamic import of ESM module
-    const { loadUsageData } = await import("ccusage/data-loader");
-    const { calculateTotals, createTotalsObject } = await import(
-      // @ts-ignore - dynamic import of ESM module
-      "ccusage/calculate-cost"
-    );
-
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
     // Get today's usage data
