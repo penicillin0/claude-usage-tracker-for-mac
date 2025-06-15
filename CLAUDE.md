@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-macOS menu bar application that visualizes Claude Code usage costs using the `ccusage` npm library to read local usage history files.
+macOS menu bar application that visualizes Claude Code usage costs using the `ccusage` npm library to read local usage history files. Built with TypeScript, Electron, and follows ES module architecture.
 
-## Limitations
+## Development Requirements
 
-- Do Linting and formatting with Biome every time you change the code.
+- Run Biome linting and formatting every time you change the code
+- Use Node16 module system with explicit `.js` extensions for local imports
+- Package.json has `"type": "module"` configured for ES module support
 
 ## Commands
 
@@ -17,6 +19,7 @@ macOS menu bar application that visualizes Claude Code usage costs using the `cc
 npm run dev          # Compile TypeScript and start Electron
 npm run build        # Compile TypeScript only
 npm start            # Run Electron (requires prior build)
+npm run typecheck    # Type check without emitting files
 
 # Code Quality
 npm run lint         # Run Biome linter
@@ -38,50 +41,59 @@ The application follows Electron's single-process architecture with a tray-only 
 **Main Process** (`src/main.ts`):
 - Application entry point and lifecycle management
 - Initializes TrayManager when app is ready
+- Hides dock icon on macOS for menu bar-only operation
 
 **TrayManager** (`src/tray.ts`):
-- System tray lifecycle management
-- Menu construction and updates
-- Handles platform-specific tray behavior (macOS vs others)
+- System tray lifecycle management with ES module compatibility
+- Menu construction and updates with formatted usage data
+- Handles platform-specific tray behavior (macOS context menu vs click events)
+- Uses `fileURLToPath(import.meta.url)` for `__dirname` replacement in ES modules
 
 **Usage Module** (`src/usage.ts`):
-- Data fetching via dynamic imports from ccusage library
+- Data fetching using static imports from ccusage library
 - Aggregates today's usage and calculates all-time totals
-- Error handling for missing usage data
+- Error handling for missing usage data with graceful fallbacks
+
+**Type Definitions** (`src/types.ts`):
+- Core data structures for usage statistics and API responses
+- TypeScript interfaces for type safety across modules
 
 **Key Functions**:
-- `getUserUsage()`: Uses ccusage data-loader and calculate-cost modules
+- `getUserUsage()`: Uses ccusage `loadDailyUsageData`, `calculateTotals`, and `createTotalsObject`
 - `TrayManager.initializeTray()`: Creates tray icon and sets up event handlers
 - `TrayManager.refreshTrayMenu()`: Builds context menu with formatted usage data
 
 **Data Flow**:
-1. Dynamic import ccusage/data-loader and ccusage/calculate-cost modules
-2. Load today's usage data with since parameter
-3. Load all-time usage data
+1. Import ccusage modules using static ES module imports
+2. Load today's usage data with `since` parameter for current date
+3. Load all-time usage data without date filter
 4. Calculate totals and format for display in tray menu
+5. Handle errors gracefully with fallback messaging
 
 ## ccusage Integration Details
 
-The app uses ccusage v0.3.0 and leverages its ESM modules directly via dynamic imports. Implementation:
+The app uses ccusage v0.8.0+ and leverages its ESM modules with static imports:
 
 ```typescript
-// Dynamic imports for ESM modules
-const { loadUsageData } = await import("ccusage/data-loader");
-const { calculateTotals, createTotalsObject } = await import("ccusage/calculate-cost");
+import { calculateTotals, createTotalsObject } from "ccusage/calculate-cost";
+import { loadDailyUsageData } from "ccusage/data-loader";
 
-// Get today's usage
+// Get today's usage (YYYYMMDD format)
 const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-const todayData = await loadUsageData({ since: today });
+const todayData = await loadDailyUsageData({ since: today });
 
 // Get all-time usage and calculate totals
-const allTimeData = await loadUsageData();
+const allTimeData = await loadDailyUsageData();
 const allTimeTotals = calculateTotals(allTimeData);
+const totalsObject = createTotalsObject(allTimeTotals);
 ```
 
-## Known Issues
+## TypeScript Configuration
 
-- **Error Handling**: Dynamic imports may fail if ccusage modules are unavailable
-- **TypeScript**: Uses @ts-ignore for dynamic ESM imports due to CommonJS/ESM interop
+- Uses Node16 module system with Node16 module resolution
+- Requires explicit `.js` extensions for local module imports in TypeScript files
+- ES module interop enabled with `esModuleInterop: true`
+- Outputs to `./dist` directory with source maps enabled
 
 ## File Structure
 
