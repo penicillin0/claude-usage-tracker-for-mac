@@ -1,5 +1,5 @@
 import { calculateTotals, createTotalsObject } from "ccusage/calculate-cost";
-import { loadUsageData } from "ccusage/data-loader";
+import { loadDailyUsageData } from "ccusage/data-loader";
 import type { UsageData } from "./types.js";
 
 export async function getUserUsage(): Promise<UsageData> {
@@ -7,12 +7,12 @@ export async function getUserUsage(): Promise<UsageData> {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
     // Get today's usage data
-    const todayData = await loadUsageData({
+    const todayData = await loadDailyUsageData({
       since: today,
     });
 
     // Get all-time usage data
-    const allTimeData = await loadUsageData();
+    const allTimeData = await loadDailyUsageData();
 
     // Calculate totals for all-time data
     const allTimeTotals = calculateTotals(allTimeData);
