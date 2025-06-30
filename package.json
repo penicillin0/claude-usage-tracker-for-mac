@@ -23,7 +23,7 @@
   "author": "penicillin0",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.0.6",
     "@types/node": "22.15.29",
     "electron": "36.4.0",
     "electron-builder": "26.0.12",
